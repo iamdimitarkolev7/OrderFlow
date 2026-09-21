@@ -1,5 +1,6 @@
 import type { FastifyInstance } from 'fastify'
 import type { Order } from '../types/order.js'
+import { producer } from '../kafka/producer.js'
 
 const orders: Order[] = []
 
@@ -23,6 +24,19 @@ export async function orderRoutes(app: FastifyInstance) {
     }
 
     orders.push(order)
+
+    await producer.send({
+      topic: 'order-events',
+      messages: [
+        {
+          key: order.id,
+          value: JSON.stringify({
+            type: 'order.created',
+            data: order,
+          }),
+        },
+      ],
+    })
 
     return reply.code(201).send(order)
   })
