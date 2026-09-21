@@ -1,3 +1,4 @@
+import { OrderEvent } from '../types/events.js'
 import { kafka } from './client.js'
 
 const consumer = kafka.consumer({
@@ -21,7 +22,7 @@ export const startProcessor = async () => {
         return
       }
 
-      const event = JSON.parse(message.value.toString())
+      const event = JSON.parse(message.value.toString()) satisfies OrderEvent
 
       if (event.type !== 'order.created') {
         return

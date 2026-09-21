@@ -1,5 +1,6 @@
 import { kafka } from './client.js'
 import { orderRepository } from '../repository/orderRepository.js'
+import { OrderEvent } from '../types/events.js'
 
 const consumer = kafka.consumer({
   groupId: 'order-service-group',
@@ -19,7 +20,7 @@ export const startConsumer = async () => {
         return
       }
 
-      const event = JSON.parse(message.value.toString())
+      const event = JSON.parse(message.value.toString()) satisfies OrderEvent
 
       if (event.type !== 'order.completed') {
         return
