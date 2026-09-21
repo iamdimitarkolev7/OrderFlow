@@ -41,10 +41,10 @@ services:
       - postgres
     restart: on-failure
 
-  processing-service:
+  order-processing-service:
     build:
-      context: ./backend/processing-service
-    container_name: orderflow-processing-service
+      context: ./backend/order-processing-service
+    container_name: orderflow-order-processing-service
     environment:
       KAFKA_BROKER: kafka:29092
     depends_on:
