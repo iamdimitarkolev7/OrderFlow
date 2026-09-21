@@ -1,12 +1,7 @@
-import { Kafka } from 'kafkajs'
-
-const kafka = new Kafka({
-  clientId: 'order-service',
-  brokers: ['localhost:9092'],
-})
+import { kafka } from './client.js'
 
 export const producer = kafka.producer()
 
-export async function connectProducer() {
+export const connectProducer = async () => {
   await producer.connect()
 }

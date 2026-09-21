@@ -2,6 +2,7 @@ import Fastify from 'fastify'
 import cors from '@fastify/cors'
 import { orderRoutes } from './routes/orders.js'
 import { connectProducer } from './kafka/producer.js'
+import { startConsumer } from './kafka/consumer.js'
 
 const app = Fastify({
   logger: true,
@@ -18,6 +19,7 @@ app.get('/health', async () => {
 })
 
 await connectProducer()
+await startConsumer()
 
 try {
   await app.listen({

@@ -1,15 +1,14 @@
 import type { FastifyInstance } from 'fastify'
 import type { Order } from '../types/order.js'
 import { producer } from '../kafka/producer.js'
-
-const orders: Order[] = []
+import { orders } from '../store/orders.js'
 
 interface CreateOrderBody {
   product: string
   quantity: number
 }
 
-export async function orderRoutes(app: FastifyInstance) {
+export const orderRoutes = async (app: FastifyInstance) => {
   app.get('/orders', async () => {
     return orders
   })
