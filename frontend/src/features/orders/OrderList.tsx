@@ -6,8 +6,17 @@ import {
   CircularProgress,
   Stack,
   Typography,
+  type ChipProps,
 } from '@mui/material'
 import { useGetOrdersQuery } from './ordersApi'
+import type { OrderStatus } from '../../types/order'
+
+const statusColors: Record<OrderStatus, ChipProps['color']> = {
+  PENDING: 'warning',
+  PROCESSING: 'info',
+  COMPLETED: 'success',
+  FAILED: 'error',
+}
 
 export const OrderList = () => {
   const {
@@ -50,7 +59,11 @@ export const OrderList = () => {
           <CardContent>
             <Typography variant="h6">{order.product}</Typography>
             <Typography>Quantity: {order.quantity}</Typography>
-            <Chip label={order.status} color="warning" />
+            <Chip
+              label={order.status}
+              color={statusColors[order.status]}
+              size="small"
+            />
           </CardContent>
         </Card>
       ))}
