@@ -51,5 +51,14 @@ services:
       - kafka
     restart: on-failure
 
+  frontend:
+    build:
+      context: ./frontend
+    container_name: orderflow-frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - order-service
+
 volumes:
   postgres-data:
