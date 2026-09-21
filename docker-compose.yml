@@ -15,6 +15,18 @@ services:
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:29093
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 
+  postgres:
+    image: postgres:17-alpine
+    container_name: orderflow-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: orderflow
+      POSTGRES_PASSWORD: orderflow
+      POSTGRES_DB: orders
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
   order-service:
     build:
       context: ./backend/order-service
@@ -23,16 +35,21 @@ services:
       - "3000:3000"
     environment:
       KAFKA_BROKER: kafka:29092
+      DATABASE_URL: postgresql://orderflow:orderflow@postgres:5432/orders
     depends_on:
       - kafka
+      - postgres
     restart: on-failure
 
-  order-processing-service:
+  processing-service:
     build:
-      context: ./backend/order-processing-service
-    container_name: orderflow-order-processing-service
+      context: ./backend/processing-service
+    container_name: orderflow-processing-service
     environment:
       KAFKA_BROKER: kafka:29092
     depends_on:
       - kafka
     restart: on-failure
+
+volumes:
+  postgres-data:

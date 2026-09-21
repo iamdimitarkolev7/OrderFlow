@@ -3,6 +3,7 @@ import cors from '@fastify/cors'
 import { orderRoutes } from './routes/orders.js'
 import { connectProducer } from './kafka/producer.js'
 import { startConsumer } from './kafka/consumer.js'
+import { initializeDatabase } from './database/database.js'
 
 const app = Fastify({
   logger: true,
@@ -18,6 +19,7 @@ app.get('/health', async () => {
   return { status: 'ok' }
 })
 
+await initializeDatabase()
 await connectProducer()
 await startConsumer()
 

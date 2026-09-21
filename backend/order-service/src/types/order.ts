@@ -11,3 +11,8 @@ export interface Order {
   status: OrderStatus
   createdAt: string
 }
+
+export interface CreateOrderBody {
+  product: string
+  quantity: number
+}

@@ -1,5 +1,5 @@
 import { kafka } from './client.js'
-import { completeOrder } from '../store/orders.js'
+import { orderRepository } from '../repository/orderRepository.js'
 
 const consumer = kafka.consumer({
   groupId: 'order-service-group',
@@ -15,14 +15,26 @@ export const startConsumer = async () => {
 
   await consumer.run({
     eachMessage: async ({ message }) => {
-      if (!message.value) return
+      if (!message.value) {
+        return
+      }
 
       const event = JSON.parse(message.value.toString())
 
-      if (event.type !== 'order.completed') return
+      if (event.type !== 'order.completed') {
+        return
+      }
 
-      completeOrder(event.data.orderId)
+      await orderRepository.updateStatus(
+        event.data.orderId,
+        'COMPLETED',
+      )
+
       console.log('Order status updated:', event.data.orderId)
     },
   })
+}
+
+export const disconnectConsumer = async () => {
+  await consumer.disconnect()
 }
