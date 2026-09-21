@@ -1,0 +1,38 @@
+services:
+  kafka:
+    image: apache/kafka:latest
+    container_name: orderflow-kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: INTERNAL://:29092,EXTERNAL://:9092,CONTROLLER://:29093
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:29092,EXTERNAL://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:29093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  order-service:
+    build:
+      context: ./backend/order-service
+    container_name: orderflow-order-service
+    ports:
+      - "3000:3000"
+    environment:
+      KAFKA_BROKER: kafka:29092
+    depends_on:
+      - kafka
+    restart: on-failure
+
+  order-processing-service:
+    build:
+      context: ./backend/order-processing-service
+    container_name: orderflow-order-processing-service
+    environment:
+      KAFKA_BROKER: kafka:29092
+    depends_on:
+      - kafka
+    restart: on-failure
