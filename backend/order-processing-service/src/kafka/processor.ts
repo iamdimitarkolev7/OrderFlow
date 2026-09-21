@@ -1,5 +1,5 @@
-import { OrderEvent } from '../types/events.js'
 import { kafka } from './client.js'
+import type { OrderEvent } from '../types/events.js'
 
 const consumer = kafka.consumer({
   groupId: 'processing-service-group',
@@ -7,47 +7,53 @@ const consumer = kafka.consumer({
 
 const producer = kafka.producer()
 
+const publishEvent = async (
+  orderId: string,
+  event: OrderEvent,
+) => {
+  await producer.send({
+    topic: 'order-events',
+    messages: [
+      {
+        key: orderId,
+        value: JSON.stringify(event),
+      },
+    ],
+  })
+}
+
 export const startProcessor = async () => {
   await consumer.connect()
   await producer.connect()
 
   await consumer.subscribe({
     topic: 'order-events',
-    fromBeginning: true,
+    fromBeginning: false,
   })
 
   await consumer.run({
     eachMessage: async ({ message }) => {
-      if (!message.value) {
-        return
-      }
+      if (!message.value) return
 
-      const event = JSON.parse(message.value.toString()) satisfies OrderEvent
+      const event = JSON.parse(
+        message.value.toString(),
+      ) as OrderEvent
 
-      if (event.type !== 'order.created') {
-        return
-      }
+      if (event.type !== 'order.created') return
 
-      console.log('Processing order:', event.data.id)
+      const orderId = event.data.id
+
+      await publishEvent(orderId, {
+        type: 'order.processing',
+        data: { orderId },
+      })
 
       await new Promise((resolve) => setTimeout(resolve, 2000))
 
-      await producer.send({
-        topic: 'order-events',
-        messages: [
-          {
-            key: event.data.id,
-            value: JSON.stringify({
-              type: 'order.completed',
-              data: {
-                orderId: event.data.id,
-              },
-            }),
-          },
-        ],
+      await publishEvent(orderId, {
+        type: 'order.completed',
+        data: { orderId },
       })
-
-      console.log('Order completed:', event.data.id)
     },
   })
 }

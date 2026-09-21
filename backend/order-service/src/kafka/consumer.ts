@@ -26,10 +26,26 @@ export const startConsumer = async () => {
         return
       }
 
-      await orderRepository.updateStatus(
-        event.data.orderId,
-        'COMPLETED',
-      )
+      if (event.type === 'order.processing') {
+        await orderRepository.updateStatus(
+          event.data.orderId,
+          'PROCESSING',
+        )
+      }
+      
+      if (event.type === 'order.completed') {
+        await orderRepository.updateStatus(
+          event.data.orderId,
+          'COMPLETED',
+        )
+      }
+      
+      if (event.type === 'order.failed') {
+        await orderRepository.updateStatus(
+          event.data.orderId,
+          'FAILED',
+        )
+      }
 
       console.log('Order status updated:', event.data.orderId)
     },

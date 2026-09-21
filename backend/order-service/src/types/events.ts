@@ -12,6 +12,23 @@ export interface OrderCompletedEvent {
   }
 }
 
+export interface OrderProcessingEvent {
+  type: 'order.processing'
+  data: {
+    orderId: string
+  }
+}
+
+export interface OrderFailedEvent {
+  type: 'order.failed'
+  data: {
+    orderId: string
+    reason: string
+  }
+}
+
 export type OrderEvent =
   | OrderCreatedEvent
+  | OrderProcessingEvent
   | OrderCompletedEvent
+  | OrderFailedEvent
