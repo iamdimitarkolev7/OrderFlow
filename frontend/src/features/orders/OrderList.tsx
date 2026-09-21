@@ -10,7 +10,13 @@ import {
 import { useGetOrdersQuery } from './ordersApi'
 
 export const OrderList = () => {
-  const { data: orders = [], isLoading, isError } = useGetOrdersQuery()
+  const {
+    data: orders = [],
+    isLoading,
+    isError,
+  } = useGetOrdersQuery(undefined, {
+    pollingInterval: 2000,
+  })
 
   if (isLoading) {
     return <CircularProgress />
