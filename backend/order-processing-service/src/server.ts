@@ -3,7 +3,7 @@ import {
   stopProcessor,
 } from './kafka/processor.js'
 
-async function start() {
+const start = async () =>  {
   try {
     await startProcessor()
     console.log('Processing Service started')
@@ -13,7 +13,7 @@ async function start() {
   }
 }
 
-async function shutdown(signal: string) {
+const shutdown = async (signal: string) => {
   console.log(`Received ${signal}, shutting down`)
 
   try {
