@@ -1,18 +1,27 @@
-import { useSelector } from 'react-redux'
 import {
+  Alert,
   Card,
   CardContent,
   Chip,
+  CircularProgress,
   Stack,
   Typography,
 } from '@mui/material'
-import type { RootState } from '../../app/store'
+import { useGetOrdersQuery } from './ordersApi'
 
-export function OrderList() {
-  const orders = useSelector((state: RootState) => state.orders.items)
+export const OrderList = () => {
+  const { data: orders = [], isLoading, isError } = useGetOrdersQuery()
 
-  if (orders.length === 0) {
-    return <Typography>No orders yet.</Typography>
+  if (isLoading) {
+    return <CircularProgress />
+  }
+
+  if (isError) {
+    return <Alert severity="error">Failed to load orders</Alert>
+  }
+
+  if (!orders.length) {
+    return <Typography>No orders yet</Typography>
   }
 
   return (
@@ -20,7 +29,7 @@ export function OrderList() {
       <Typography variant="h5">Orders</Typography>
 
       {orders.map((order) => (
-        <Card 
+        <Card
           key={order.id}
           sx={{
             border: '1px solid',

@@ -2,7 +2,7 @@ import { Container, Paper, Stack, Typography } from '@mui/material'
 import { OrderForm } from './features/orders/OrderForm'
 import { OrderList } from './features/orders/OrderList'
 
-function App() {
+const App = () => {
   return (
     <Container maxWidth="sm" sx={{ py: 6 }}>
       <Typography variant="h4" sx={{ mb: 1}}>

@@ -1,37 +1,37 @@
 import { useState, type SubmitEvent } from 'react'
-import { useDispatch } from 'react-redux'
-import { Button, Stack, TextField, Typography } from '@mui/material'
-import { addOrder } from './ordersSlice'
+import { Alert, Button, Stack, TextField, Typography } from '@mui/material'
+import { useCreateOrderMutation } from './ordersApi'
 
 export const OrderForm = () => {
-  const dispatch = useDispatch()
-
   const [product, setProduct] = useState('')
   const [quantity, setQuantity] = useState(1)
+  const [createOrder, { isLoading, isError }] = useCreateOrderMutation()
 
-  function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
+  const handleSubmit = async (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault()
 
     if (!product.trim() || quantity < 1) {
       return
     }
 
-    dispatch(
-      addOrder({
-        id: crypto.randomUUID(),
+    try {
+      await createOrder({
         product: product.trim(),
         quantity,
-        status: 'PENDING',
-      }),
-    )
+      }).unwrap()
 
-    setProduct('')
-    setQuantity(1)
+      setProduct('')
+      setQuantity(1)
+    } catch {
+      // Displayed through isError
+    }
   }
 
   return (
     <Stack component="form" onSubmit={handleSubmit} spacing={2}>
       <Typography variant="h5">Create order</Typography>
+
+      {isError && <Alert severity="error">Failed to create order</Alert>}
 
       <TextField
         label="Product"
@@ -49,8 +49,8 @@ export const OrderForm = () => {
         required
       />
 
-      <Button type="submit" variant="contained">
-        Create order
+      <Button type="submit" variant="contained" disabled={isLoading}>
+        {isLoading ? 'Creating...' : 'Create order'}
       </Button>
     </Stack>
   )
